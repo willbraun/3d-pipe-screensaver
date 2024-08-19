@@ -14,6 +14,15 @@ export const getRandomPerpendicularVector = (direction: Vector3) => {
 	return choices[randomIndex]
 }
 
-export const areVectorComponentsIntegers = (vector: Vector3) => {
-	return Number.isInteger(vector.x) && Number.isInteger(vector.y) && Number.isInteger(vector.z)
+const isNearInteger = (num: number): boolean => {
+	return Math.abs(num - Math.round(num)) < 1e-4
+}
+
+export const areVectorComponentsNearIntegers = (vector: Vector3) => {
+	return isNearInteger(vector.x) && isNearInteger(vector.y) && isNearInteger(vector.z)
+}
+
+export const roundVector3 = (vector: Vector3) => {
+	vector.set(Math.round(vector.x), Math.round(vector.y), Math.round(vector.z))
+	return vector
 }
