@@ -13,7 +13,3 @@ export const getRandomPerpendicularVector = (direction: Vector3) => {
 	const randomIndex = Math.floor(Math.random() * 4)
 	return choices[randomIndex]
 }
-
-export const areVectorComponentsIntegers = (vector: Vector3) => {
-	return Number.isInteger(vector.x) && Number.isInteger(vector.y) && Number.isInteger(vector.z)
-}
