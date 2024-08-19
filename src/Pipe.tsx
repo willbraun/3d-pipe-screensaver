@@ -17,6 +17,7 @@ const Pipe: FC<PipeProps> = ({ start, end }) => {
 	const length = difference.length()
 	const direction = difference.clone().normalize()
 	const quaternion = new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), direction)
+
 	if (pipeRef.current) pipeRef.current.quaternion.copy(quaternion)
 
 	useFrame(() => {
@@ -30,7 +31,7 @@ const Pipe: FC<PipeProps> = ({ start, end }) => {
 	})
 
 	const nextDirection = getRandomPerpendicularVector(direction)
-	const nextLength = Math.floor(Math.random() * 4) * 4
+	const nextLength = Math.floor(Math.random() * 4) * 4 + 4
 	const nextEnd = end.clone().add(nextDirection.multiplyScalar(nextLength))
 
 	return (
