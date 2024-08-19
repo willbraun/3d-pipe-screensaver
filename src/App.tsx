@@ -4,6 +4,8 @@ import Pipe from './Pipe'
 import { Vector3 } from 'three'
 
 export const App = () => {
+	const firstPoints = [new Vector3(0, 0, 0), new Vector3(0, 4, 0)]
+
 	return (
 		<Canvas shadows style={{ width: '100vw', height: '100vh' }}>
 			<OrbitControls />
@@ -11,7 +13,7 @@ export const App = () => {
 			<ambientLight intensity={0.1} />
 			<directionalLight position={[1, 1, 1]} />
 
-			<Pipe start={new Vector3(0, 0, 0)} end={new Vector3(0, 4, 0)} />
+			<Pipe start={firstPoints[0]} end={firstPoints[1]} prevPoints={firstPoints} />
 		</Canvas>
 	)
 }
