@@ -13,7 +13,7 @@ import {
 interface PipeProps {
 	start: Vector3
 	end: Vector3
-	prevPoints: Vector3[]
+	pointsRef: React.MutableRefObject<Vector3[]>
 	color: string
 }
 
@@ -25,9 +25,8 @@ const getRandomLength = (max: number) => {
 	return min + numChunks * 4
 }
 
-const Pipe: FC<PipeProps> = ({ start, end, prevPoints, color }) => {
+const Pipe: FC<PipeProps> = ({ start, end, pointsRef, color }) => {
 	const pipeRef = useRef<Mesh>(null)
-	const [points, setPoints] = useState<Vector3[]>(prevPoints)
 	const [scale, setScale] = useState(1.5)
 	const [nextEnd, setNextEnd] = useState<Vector3 | null>(null)
 
@@ -39,14 +38,12 @@ const Pipe: FC<PipeProps> = ({ start, end, prevPoints, color }) => {
 	if (pipeRef.current) pipeRef.current.quaternion.copy(quaternion)
 
 	useEffect(() => {
-		setPoints([...points, end])
-
 		const perpVectors = getPerpendicularVectors(direction)
-
 		const map = new Map<Vector3, Vector3 | undefined>()
+
 		perpVectors.forEach(perpVector => {
 			const normalized = perpVector.clone().normalize()
-			const pointsInDirection = getPointsInDirection(end, normalized, points)
+			const pointsInDirection = getPointsInDirection(end, normalized, pointsRef.current)
 			const closestPoint = getClosestPoint(end, pointsInDirection)
 			map.set(perpVector, closestPoint)
 		})
@@ -88,7 +85,7 @@ const Pipe: FC<PipeProps> = ({ start, end, prevPoints, color }) => {
 
 			const currentEnd = start.clone().add(direction.clone().multiplyScalar(scale))
 			if (areVectorComponentsDivisibleBy4(currentEnd)) {
-				setPoints([...points, roundVector3(currentEnd)])
+				pointsRef.current.push(roundVector3(currentEnd))
 			}
 		}
 		pipeRef.current.scale.set(1, scale, 1)
@@ -102,7 +99,7 @@ const Pipe: FC<PipeProps> = ({ start, end, prevPoints, color }) => {
 			<Cylinder ref={pipeRef} args={[1, 1, 1, 32]} position={end} castShadow receiveShadow>
 				<meshStandardMaterial color={color} />
 			</Cylinder>
-			{scale >= length && nextEnd && <Pipe start={end} end={nextEnd} prevPoints={points} color={color} />}
+			{scale >= length && nextEnd && <Pipe start={end} end={nextEnd} pointsRef={pointsRef} color={color} />}
 		</>
 	)
 }
