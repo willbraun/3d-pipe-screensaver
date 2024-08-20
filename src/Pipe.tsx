@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import { FC, useEffect, useRef, useState } from 'react'
 import { Mesh, Quaternion, Vector3 } from 'three'
 import {
-	areVectorComponentsNearIntegers,
+	areVectorComponentsDivisibleBy4,
 	getClosestPoint,
 	getPerpendicularVectors,
 	getPointsInDirection,
@@ -87,7 +87,7 @@ const Pipe: FC<PipeProps> = ({ start, end, prevPoints, color }) => {
 			pipeRef.current.position.copy(start.clone().add(direction.clone().multiplyScalar(scale / 2)))
 
 			const currentEnd = start.clone().add(direction.clone().multiplyScalar(scale))
-			if (areVectorComponentsNearIntegers(currentEnd)) {
+			if (areVectorComponentsDivisibleBy4(currentEnd)) {
 				setPoints([...points, roundVector3(currentEnd)])
 			}
 		}

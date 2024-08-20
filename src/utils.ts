@@ -46,12 +46,12 @@ export const getClosestPoint = (base: Vector3, pointsInDirection: Vector3[]): Ve
 	}, pointsInDirection[0])
 }
 
-const isNearInteger = (num: number): boolean => {
-	return Math.abs(num - Math.round(num)) < 1e-4
+const isDivisbleBy4 = (num: number): boolean => {
+	return num % 4 === 0
 }
 
-export const areVectorComponentsNearIntegers = (vector: Vector3) => {
-	return isNearInteger(vector.x) && isNearInteger(vector.y) && isNearInteger(vector.z)
+export const areVectorComponentsDivisibleBy4 = (vector: Vector3) => {
+	return isDivisbleBy4(vector.x) && isDivisbleBy4(vector.y) && isDivisbleBy4(vector.z)
 }
 
 export const roundVector3 = (vector: Vector3) => {
