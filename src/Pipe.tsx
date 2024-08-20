@@ -14,9 +14,18 @@ interface PipeProps {
 	start: Vector3
 	end: Vector3
 	prevPoints: Vector3[]
+	color: string
 }
 
-const Pipe: FC<PipeProps> = ({ start, end, prevPoints }) => {
+const chunkSize = 4
+const getRandomLength = (max: number) => {
+	const min = chunkSize
+	const possibleChunks = Math.floor((max - min) / 4) + 1
+	const numChunks = Math.floor(Math.random() * possibleChunks)
+	return min + numChunks * 4
+}
+
+const Pipe: FC<PipeProps> = ({ start, end, prevPoints, color }) => {
 	const pipeRef = useRef<Mesh>(null)
 	const [points, setPoints] = useState<Vector3[]>(prevPoints)
 	const [scale, setScale] = useState(1.5)
@@ -42,27 +51,39 @@ const Pipe: FC<PipeProps> = ({ start, end, prevPoints }) => {
 			map.set(perpVector, closestPoint)
 		})
 		map.forEach((closestPoint, perpVector) => {
-			console.log('end', end)
-			console.log('closestPoint', closestPoint)
-			console.log('distance', closestPoint && end.distanceTo(closestPoint))
-			if (closestPoint && end.distanceTo(closestPoint) <= 8) {
-				console.log('DELETED')
+			if (closestPoint && end.distanceTo(closestPoint) <= 4) {
 				map.delete(perpVector)
 			}
 		})
 
-		const randomIndex = Math.floor(Math.random() * map.size)
-		const nextDirection = Array.from(map.keys())?.[randomIndex] ?? perpVectors[0]
-		const maxLength = map.get(nextDirection)?.distanceTo(end) ?? 16
-		const nextLength = 4 + Math.floor((Math.random() * maxLength) / 4)
-		setNextEnd(end.clone().add(nextDirection.multiplyScalar(nextLength)))
+		let nextEnd: Vector3 | undefined = undefined
+		while (nextEnd === undefined) {
+			const randomIndex = Math.floor(Math.random() * map.size)
+			const nextDirection = Array.from(map.keys())?.[randomIndex] ?? perpVectors[0]
+			const distance = map.get(nextDirection)?.distanceTo(end) ?? 24
+			const maxLength = Math.min(distance, 24) - chunkSize
+			const nextLength = getRandomLength(maxLength)
+			const possibleEnd = end.clone().add(nextDirection.clone().multiplyScalar(nextLength))
+			if (
+				possibleEnd.x > -100 &&
+				possibleEnd.x < 100 &&
+				possibleEnd.y > -50 &&
+				possibleEnd.y < 50 &&
+				possibleEnd.z < 50
+			) {
+				nextEnd = possibleEnd
+			}
+		}
+
+		setNextEnd(nextEnd)
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
 	useFrame(() => {
 		if (!pipeRef.current) return
 
 		if (scale < length) {
-			setScale(scale + 0.1)
+			setScale(scale + 0.5)
 			pipeRef.current.position.copy(start.clone().add(direction.clone().multiplyScalar(scale / 2)))
 
 			const currentEnd = start.clone().add(direction.clone().multiplyScalar(scale))
@@ -76,12 +97,12 @@ const Pipe: FC<PipeProps> = ({ start, end, prevPoints }) => {
 	return (
 		<>
 			<Sphere args={[1.5, 32, 32]} position={start} castShadow receiveShadow>
-				<meshStandardMaterial color='cyan' />
+				<meshStandardMaterial color={color} />
 			</Sphere>
 			<Cylinder ref={pipeRef} args={[1, 1, 1, 32]} position={end} castShadow receiveShadow>
-				<meshStandardMaterial color='cyan' />
+				<meshStandardMaterial color={color} />
 			</Cylinder>
-			{scale >= length && nextEnd && <Pipe start={end} end={nextEnd} prevPoints={points} />}
+			{scale >= length && nextEnd && <Pipe start={end} end={nextEnd} prevPoints={points} color={color} />}
 		</>
 	)
 }

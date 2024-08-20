@@ -37,15 +37,13 @@ export const getPointsInDirection = (base: Vector3, direction: Vector3, points: 
 }
 
 export const getClosestPoint = (base: Vector3, pointsInDirection: Vector3[]): Vector3 | undefined => {
-	const copy = [...pointsInDirection]
-	copy.sort((a, b) => base.distanceTo(a) - base.distanceTo(b))
-	return copy[0]
+	if (pointsInDirection.length === 0) return
 
-	// return pointsInDirection.reduce((prev, curr) => {
-	// 	const prevDistance = base.distanceTo(prev)
-	// 	const currDistance = base.distanceTo(curr)
-	// 	return prevDistance < currDistance ? prev : curr
-	// }, base)
+	return pointsInDirection.reduce((prev, curr) => {
+		const prevDistance = base.distanceTo(prev)
+		const currDistance = base.distanceTo(curr)
+		return prevDistance < currDistance ? prev : curr
+	}, pointsInDirection[0])
 }
 
 const isNearInteger = (num: number): boolean => {
