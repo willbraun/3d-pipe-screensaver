@@ -69,7 +69,7 @@ const Pipe: FC<PipeProps> = ({ start, end, pointsRef, color }) => {
 		if (!pipeRef.current) return
 
 		const increment = 0.5
-		const steps = 5
+		const steps = 2
 
 		let newScale = scale
 
