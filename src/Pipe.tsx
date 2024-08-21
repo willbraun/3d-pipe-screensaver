@@ -54,6 +54,7 @@ const Pipe: FC<PipeProps> = ({ start, end, pointsRef, color }) => {
 		})
 
 		let nextEnd: Vector3 | undefined = undefined
+		let count = 0
 		while (nextEnd === undefined) {
 			const randomIndex = Math.floor(Math.random() * map.size)
 			const nextDirection = Array.from(map.keys())?.[randomIndex] ?? perpVectors[0]
@@ -70,6 +71,11 @@ const Pipe: FC<PipeProps> = ({ start, end, pointsRef, color }) => {
 			) {
 				nextEnd = possibleEnd
 			}
+			count++
+			if (count > 10) {
+				nextEnd = possibleEnd
+				break
+			}
 		}
 
 		setNextEnd(nextEnd)
@@ -80,7 +86,7 @@ const Pipe: FC<PipeProps> = ({ start, end, pointsRef, color }) => {
 		if (!pipeRef.current) return
 
 		if (scale < length) {
-			setScale(scale + 0.5)
+			setScale(scale + 0.25)
 			pipeRef.current.position.copy(start.clone().add(direction.clone().multiplyScalar(scale / 2)))
 
 			const currentEnd = start.clone().add(direction.clone().multiplyScalar(scale))

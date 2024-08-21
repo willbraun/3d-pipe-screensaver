@@ -14,8 +14,9 @@ export const App = () => {
 			<ambientLight intensity={0.1} />
 			<directionalLight position={[1, 1, 1]} />
 
-			<Pipe start={new Vector3(0, 0, 0)} end={new Vector3(0, 4, 0)} pointsRef={pointsRef} color={'white'} />
-			<Pipe start={new Vector3(12, 0, 0)} end={new Vector3(12, -8, 0)} pointsRef={pointsRef} color={'red'} />
+			<Pipe start={new Vector3(-12, 0, 0)} end={new Vector3(-12, 4, 0)} pointsRef={pointsRef} color={'orange'} />
+			<Pipe start={new Vector3(12, 0, 0)} end={new Vector3(12, -8, 0)} pointsRef={pointsRef} color={'limegreen'} />
+			<Pipe start={new Vector3(0, -12, 0)} end={new Vector3(-8, -12, 0)} pointsRef={pointsRef} color={'cyan'} />
 		</Canvas>
 	)
 }
