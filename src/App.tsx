@@ -5,7 +5,7 @@ import { Vector3 } from 'three'
 import { useRef } from 'react'
 
 export const App = () => {
-	const pointsRef = useRef<Vector3[]>([new Vector3(0, 0, 0), new Vector3(12, 0, 0)])
+	const pointsRef = useRef<Vector3[]>([])
 
 	return (
 		<Canvas shadows style={{ width: '100vw', height: '100vh' }}>
