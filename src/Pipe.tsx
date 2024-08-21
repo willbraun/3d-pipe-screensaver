@@ -17,18 +17,11 @@ interface PipeProps {
 	color: string
 }
 
-const chunkSize = 4
-const getRandomLength = (max: number) => {
-	const min = chunkSize
-	const possibleChunks = Math.floor((max - min) / 4) + 1
-	const numChunks = Math.floor(Math.random() * possibleChunks)
-	return min + numChunks * 4
-}
-
 const Pipe: FC<PipeProps> = ({ start, end, pointsRef, color }) => {
 	const pipeRef = useRef<Mesh>(null)
 	const [scale, setScale] = useState(1.5)
 	const [nextEnd, setNextEnd] = useState<Vector3 | null>(null)
+	const chunkSize = 4
 
 	const difference = end.clone().sub(start)
 	const length = difference.length()
@@ -40,61 +33,60 @@ const Pipe: FC<PipeProps> = ({ start, end, pointsRef, color }) => {
 	useEffect(() => {
 		const perpVectors = getPerpendicularVectors(direction)
 		const map = new Map<Vector3, Vector3 | undefined>()
-
 		perpVectors.forEach(perpVector => {
 			const normalized = perpVector.clone().normalize()
 			const pointsInDirection = getPointsInDirection(end, normalized, pointsRef.current)
 			const closestPoint = getClosestPoint(end, pointsInDirection)
 			map.set(perpVector, closestPoint)
 		})
+
+		const possibleEnds: Vector3[] = []
 		map.forEach((closestPoint, perpVector) => {
-			if (closestPoint && end.distanceTo(closestPoint) <= 4) {
-				map.delete(perpVector)
+			const distance = closestPoint?.distanceTo(end) ?? 24
+			if (distance <= chunkSize) return
+
+			const maxLength = Math.min(distance, 24) - chunkSize
+			for (let i = chunkSize; i <= maxLength; i += chunkSize) {
+				const possibleEnd = end.clone().add(perpVector.clone().multiplyScalar(i))
+				if (
+					possibleEnd.x > -100 &&
+					possibleEnd.x < 100 &&
+					possibleEnd.y > -50 &&
+					possibleEnd.y < 50 &&
+					possibleEnd.z < 50
+				) {
+					possibleEnds.push(possibleEnd)
+				}
 			}
 		})
 
-		let nextEnd: Vector3 | undefined = undefined
-		let count = 0
-		while (nextEnd === undefined) {
-			const randomIndex = Math.floor(Math.random() * map.size)
-			const nextDirection = Array.from(map.keys())?.[randomIndex] ?? perpVectors[0]
-			const distance = map.get(nextDirection)?.distanceTo(end) ?? 24
-			const maxLength = Math.min(distance, 24) - chunkSize
-			const nextLength = getRandomLength(maxLength)
-			const possibleEnd = end.clone().add(nextDirection.clone().multiplyScalar(nextLength))
-			if (
-				possibleEnd.x > -100 &&
-				possibleEnd.x < 100 &&
-				possibleEnd.y > -50 &&
-				possibleEnd.y < 50 &&
-				possibleEnd.z < 50
-			) {
-				nextEnd = possibleEnd
-			}
-			count++
-			if (count > 10) {
-				nextEnd = possibleEnd
-				break
-			}
-		}
-
-		setNextEnd(nextEnd)
+		const choice = possibleEnds[Math.floor(Math.random() * possibleEnds.length)]
+		setNextEnd(choice)
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
 	useFrame(() => {
 		if (!pipeRef.current) return
 
-		if (scale < length) {
-			setScale(scale + 0.25)
-			pipeRef.current.position.copy(start.clone().add(direction.clone().multiplyScalar(scale / 2)))
+		const increment = 0.5
+		const steps = 5
 
-			const currentEnd = start.clone().add(direction.clone().multiplyScalar(scale))
+		let newScale = scale
+
+		for (let i = 0; i < steps && newScale < length; i++) {
+			newScale += increment / steps
+
+			const newPosition = start.clone().add(direction.clone().multiplyScalar(newScale / 2))
+			pipeRef.current.position.copy(newPosition)
+
+			const currentEnd = start.clone().add(direction.clone().multiplyScalar(newScale))
 			if (areVectorComponentsDivisibleBy4(currentEnd)) {
 				pointsRef.current.push(roundVector3(currentEnd))
 			}
 		}
-		pipeRef.current.scale.set(1, scale, 1)
+
+		setScale(newScale)
+		pipeRef.current.scale.set(1, newScale, 1)
 	})
 
 	return (

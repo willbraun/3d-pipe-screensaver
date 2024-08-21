@@ -33,8 +33,9 @@ export const getClosestPoint = (base: Vector3, pointsInDirection: Vector3[]): Ve
 }
 
 const isDivisbleBy4 = (num: number): boolean => {
-	const nearestInt = Math.round(num)
-	return Math.abs(num - nearestInt) < 0.000001 && nearestInt % 4 === 0
+	const absNum = Math.abs(num)
+	const nearestAbsInt = Math.round(absNum)
+	return Math.abs(absNum - nearestAbsInt) < 0.000001 && nearestAbsInt % 4 === 0
 }
 
 export const areVectorComponentsDivisibleBy4 = (vector: Vector3) => {
