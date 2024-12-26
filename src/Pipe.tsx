@@ -19,17 +19,19 @@ interface PipeProps {
 
 const Pipe: FC<PipeProps> = ({ start, end, pointsRef, color }) => {
 	const pipeRef = useRef<Mesh>(null)
-	const [scale, setScale] = useState(1.5)
+	const [scale, setScale] = useState(1)
 	const [nextEnd, setNextEnd] = useState<Vector3 | null>(null)
 	const chunkSize = 4
 
 	const difference = end.clone().sub(start)
 	const length = difference.length()
 	const direction = difference.clone().normalize()
-	const quaternion = new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), direction)
 
+	// rotate the pipe to face the correct direction
+	const quaternion = new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), direction)
 	if (pipeRef.current) pipeRef.current.quaternion.copy(quaternion)
 
+	// find the end of the next pipe
 	useEffect(() => {
 		const perpVectors = getPerpendicularVectors(direction)
 		const map = new Map<Vector3, Vector3 | undefined>()
@@ -65,15 +67,18 @@ const Pipe: FC<PipeProps> = ({ start, end, pointsRef, color }) => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
+	// animate the pipe growing
 	useFrame(() => {
 		if (!pipeRef.current) return
 
 		const increment = 0.5
 		const steps = 2
 
-		let newScale = scale
+		let newScale = pipeRef.current.scale.y
 
-		for (let i = 0; i < steps && newScale < length; i++) {
+		for (let i = 0; i < steps; i++) {
+			if (newScale >= length) break
+
 			newScale += increment / steps
 
 			const newPosition = start.clone().add(direction.clone().multiplyScalar(newScale / 2))
