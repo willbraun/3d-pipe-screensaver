@@ -74,7 +74,7 @@ const Pipe: FC<PipeProps> = ({ start, end, pointsRef, color }) => {
 		const increment = 0.5
 		const steps = 2
 
-		let newScale = pipeRef.current.scale.y
+		let newScale = scale
 
 		for (let i = 0; i < steps; i++) {
 			if (newScale >= length) break
