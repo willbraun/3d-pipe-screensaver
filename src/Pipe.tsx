@@ -71,7 +71,10 @@ const Pipe: FC<PipeProps> = ({ start, end, pointsRef, color }) => {
 	useFrame(() => {
 		if (!pipeRef.current) return
 
+		// represents the speed of growth
 		const increment = 0.5
+
+		// multiple steps per frame helps avoid intersections
 		const steps = 2
 
 		let newScale = scale
