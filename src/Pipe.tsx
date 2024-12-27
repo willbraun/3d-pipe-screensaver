@@ -70,6 +70,7 @@ const Pipe: FC<PipeProps> = ({ start, end, pointsRef, color }) => {
 	// animate the pipe growing
 	useFrame(() => {
 		if (!pipeRef.current) return
+		if (scale >= length) return
 
 		// represents the speed of growth
 		const increment = 0.5
@@ -78,10 +79,7 @@ const Pipe: FC<PipeProps> = ({ start, end, pointsRef, color }) => {
 		const steps = 2
 
 		let newScale = scale
-
 		for (let i = 0; i < steps; i++) {
-			if (newScale >= length) break
-
 			newScale += increment / steps
 
 			const newPosition = start.clone().add(direction.clone().multiplyScalar(newScale / 2))
